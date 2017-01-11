@@ -1,0 +1,19 @@
+{
+  "name": "visavi/cleanup",
+  "description": "Cleaning vendor directory",
+  "keywords": ["composer", "vendor", "clean"],
+  "homepage": "http://visavi.net",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Alexander Grigorev",
+      "email": "admin@visavi.net",
+      "homepage": "http://visavi.net"
+    }
+  ],
+  "require": {
+    "php": ">=5.4.0"
+  },
+  "minimum-stability": "stable",
+  "bin": ["cleanup"]
+}
