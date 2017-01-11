@@ -54,10 +54,9 @@ function delTree($dir) {
     return rmdir($dir);
 }
 
+$directories = expandTree(dirname(dirname(__DIR__)));
+
 foreach ($patterns as $pattern) {
-
-    $directories = expandTree(dirname(__DIR__).'/vendor');
-
     foreach ($directories as $directory) {
         foreach (glob($directory .'/'. $pattern) as $file) {
 
