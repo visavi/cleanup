@@ -38,7 +38,16 @@ It cleans up any tests, descriptions, documentation, examples, etc.
 * .gitignore
 * composer.json
     
-run `./vendor/bin/cleanup`
+### Installing
+
+```
+composer require visavi/cleanup
+```
+   
+### Run
+```
+./vendor/bin/cleanup
+```
 
 ### License
 
