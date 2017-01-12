@@ -1,5 +1,30 @@
 #!/usr/bin/env php
 <?php
+$options = getopt("i:e:h", ['include:', 'exclude:', 'help']);
+
+if (isset($options['include'])) {
+    $options['i'] = $options['include'];
+}
+
+if (isset($options['exclude'])) {
+    $options['e'] = $options['exclude'];
+}
+
+if (isset($options['h']) || isset($options['help'])) {
+    echo "Cleaning composer vendor directory".PHP_EOL.PHP_EOL;
+
+    echo "\e[0;33mUsage:\e[0m".PHP_EOL;
+    echo "  command [options] [arguments]".PHP_EOL.PHP_EOL;
+
+    echo "\e[0;33mOptions:\e[0m".PHP_EOL;
+    echo "  \e[0;32m-h, --help    \e[0m  Display this help message".PHP_EOL;
+    echo "  \e[0;32m-i, --include \e[0m  Add patterns for common files, comma separated".PHP_EOL;
+    echo "  \e[0;32m-e, --exclude \e[0m  Remove patterns for common files, comma separated".PHP_EOL.PHP_EOL;
+
+    echo "\e[0;33mExample:\e[0m".PHP_EOL;
+    echo "  ./vendor/bin/cleanup --include *.lock,*.txt --exclude doc,docs,test".PHP_EOL;
+    return;
+}
 
 // Default patterns for common files
 $patterns = [
@@ -31,6 +56,14 @@ $patterns = [
     '.gitignore',
     'composer.json',
 ];
+
+if (isset($options['i'])) {
+    $patterns = array_merge($patterns, explode(',', $options['i']));
+}
+
+if (isset($options['e'])) {
+    $patterns = array_diff($patterns, explode(',', $options['e']));
+}
 
 function expandTree($dir) {
     $directories = [];
