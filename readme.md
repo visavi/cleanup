@@ -6,7 +6,7 @@ Cleanup
 [![Latest Unstable Version](https://poser.pugx.org/visavi/cleanup/v/unstable)](https://packagist.org/packages/visavi/cleanup)
 [![License](https://poser.pugx.org/visavi/cleanup/license)](https://packagist.org/packages/visavi/cleanup)
 
-###Cleaning composer vendor directory
+### Cleaning composer vendor directory
 
 It cleans up any tests, descriptions, documentation, examples, etc.
 
