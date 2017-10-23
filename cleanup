@@ -28,6 +28,8 @@ if (isset($options['h']) || isset($options['help'])) {
 
 // Default patterns for common files
 $patterns = [
+    '.git',
+    '.github',
     'test',
     'tests',
     'Tests',
@@ -40,6 +42,7 @@ $patterns = [
     'README*',
     'LICENSE*',
     'CHANGELOG*',
+    'CHANGES*',
     'FAQ*',
     'CONTRIBUTING*',
     'HISTORY*',
@@ -47,14 +50,20 @@ $patterns = [
     'UPGRADE*',
     'package*',
     'readme*',
-    '.travis.yml',
+    'Dockerfile',
     '.scrutinizer',
-    '.yml',
     'phpunit.xml*',
     'phpunit.php',
+    'phpunit',
+    '*.yml',
     '*.md',
+    '*.xml',
+    '.php_cs*',
     '.gitignore',
+    '.gitattributes',
+    '.editorconfig',
     'composer.json',
+    'composer.lock',
 ];
 
 if (isset($options['i'])) {
