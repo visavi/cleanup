@@ -22,7 +22,7 @@ if (isset($options['h']) || isset($options['help'])) {
     echo "  \e[0;32m-e, --exclude \e[0m  Remove patterns for common files, comma separated" . PHP_EOL . PHP_EOL;
 
     echo "\e[0;33mExample:\e[0m" . PHP_EOL;
-    echo "  ./vendor/bin/cleanup --include *.lock,*.txt --exclude doc,docs,test" . PHP_EOL;
+    echo "  ./vendor/bin/cleanup --include *.zip,*.rar --exclude doc,docs,test" . PHP_EOL;
     return;
 }
 
@@ -38,7 +38,7 @@ $patterns = [
     'examples',
     'doc',
     'docs',
-    'license*',
+    'license',
     'changelog*',
     'changes*',
     'faq*',
@@ -48,12 +48,12 @@ $patterns = [
     'upgrade*',
     'package*',
     'readme*',
-    'phpunit.xml*',
-    'phpunit.php',
-    'phpunit*',
-    '*.yml',
+    '{,.}*.yml',
     '*.md',
     '*.xml',
+    '*.txt',
+    '*.json',
+    '*.dist',
     '.php_cs*',
     '.scrutinizer',
     '.gitignore',
@@ -126,11 +126,7 @@ foreach ($directories as $directory) {
 
         $casePattern = preg_replace_callback('/([a-z])/i', 'prepareWord', $pattern);
 
-        foreach (glob($directory . '/' . $casePattern) as $file) {
-
-            if (pathinfo($file, PATHINFO_EXTENSION) === 'php') {
-                continue;
-            }
+        foreach (glob($directory . '/' . $casePattern, GLOB_BRACE) as $file) {
 
             echo 'delete: ' . $file . PHP_EOL;
 
