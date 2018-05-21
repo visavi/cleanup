@@ -52,7 +52,6 @@ $patterns = [
     '*.md',
     '*.xml',
     '*.txt',
-    '*.json',
     '*.dist',
     '.php_cs*',
     '.scrutinizer',
@@ -60,7 +59,6 @@ $patterns = [
     '.gitattributes',
     '.editorconfig',
     'dockerfile',
-    'composer.json',
     'composer.lock',
 ];
 
@@ -119,7 +117,7 @@ function prepareWord($matches)
     return '[' . strtolower($matches[1]) . strtoupper($matches[1]) . ']';
 }
 
-$directories = expandTree(dirname(dirname(__DIR__)));
+$directories = expandTree(dirname(__DIR__, 2));
 
 foreach ($directories as $directory) {
     foreach ($patterns as $pattern) {
