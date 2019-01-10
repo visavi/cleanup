@@ -34,7 +34,6 @@ It cleans up any tests, descriptions, documentation, examples, etc.
 * *.md
 * *.xml
 * *.txt
-* *.json
 * *.dist
 * .php_cs*
 * .scrutinizer
@@ -42,9 +41,8 @@ It cleans up any tests, descriptions, documentation, examples, etc.
 * .gitattributes
 * .editorconfig
 * dockerfile
-* composer.json
 * composer.lock
-    
+
 ## Installing
 
 ```
@@ -57,15 +55,23 @@ composer require visavi/cleanup
 ```
 
 ## Option
-include - include new rules pattern
+--help (-h) - Display help message
 
-exclude - excludes from the pattern rule
+--include (-i) - include new rules pattern
+
+--exclude (-e) - excludes from the pattern rule
+
+--verbose (-v) - Increase the verbosity of messages
+
+--path (-p) - Find on specific path
+
+--dry (-d) - Run without actual remove
 
 *the list of arguments must be passed by a comma*
 
 ## Example
 ```
-./vendor/bin/cleanup --include *.zip,*.rar --exclude doc,docs,test
+./vendor/bin/cleanup -v --path symfony --include *.zip,*.rar --exclude doc,docs,test
 ```
 
 ## License
