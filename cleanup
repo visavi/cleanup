@@ -1,28 +1,29 @@
 #!/usr/bin/env php
 <?php
-$options = getopt("i:e:h", ['include:', 'exclude:', 'help']);
 
-if (isset($options['include'])) {
-    $options['i'] = $options['include'];
+$version = '1.5.0';
+$options = getopt('i:e:p:dvh', ['include:', 'exclude:', 'path:', 'dry', 'verbose', 'help']);
+
+foreach ($options as $key => $value) {
+    $options[$key[0]] = $value;
 }
 
-if (isset($options['exclude'])) {
-    $options['e'] = $options['exclude'];
-}
+echo 'Cleanup v' . $version . PHP_EOL . PHP_EOL;
 
-if (isset($options['h']) || isset($options['help'])) {
-    echo "Cleaning composer vendor directory" . PHP_EOL . PHP_EOL;
-
+if (isset($options['h'])) {
     echo "\e[0;33mUsage:\e[0m" . PHP_EOL;
-    echo "  command [options] [arguments]" . PHP_EOL . PHP_EOL;
+    echo '  command [options] [arguments]' . PHP_EOL . PHP_EOL;
 
     echo "\e[0;33mOptions:\e[0m" . PHP_EOL;
     echo "  \e[0;32m-h, --help    \e[0m  Display this help message" . PHP_EOL;
     echo "  \e[0;32m-i, --include \e[0m  Add patterns for common files, comma separated" . PHP_EOL;
-    echo "  \e[0;32m-e, --exclude \e[0m  Remove patterns for common files, comma separated" . PHP_EOL . PHP_EOL;
+    echo "  \e[0;32m-e, --exclude \e[0m  Remove patterns for common files, comma separated" . PHP_EOL;
+    echo "  \e[0;32m-v, --verbose \e[0m  Increase the verbosity of messages" . PHP_EOL;
+    echo "  \e[0;32m-p, --path    \e[0m  Find on specific path" . PHP_EOL;
+    echo "  \e[0;32m-d, --dry     \e[0m  Run without actual remove" . PHP_EOL . PHP_EOL;
 
     echo "\e[0;33mExample:\e[0m" . PHP_EOL;
-    echo "  ./vendor/bin/cleanup --include *.zip,*.rar --exclude doc,docs,test" . PHP_EOL;
+    echo '  ./vendor/bin/cleanup -v --path symfony --include *.zip,*.rar --exclude doc,docs,test' . PHP_EOL;
     return;
 }
 
@@ -62,6 +63,17 @@ $patterns = [
     'composer.lock',
 ];
 
+$dirname = dirname(__DIR__, 2);
+
+if (isset($options['p'])) {
+    $dirname .= '/' . $options['p'];
+
+    if (! file_exists($dirname)) {
+        echo 'Directory not found!' . PHP_EOL;
+        return;
+    }
+}
+
 if (isset($options['i'])) {
     $patterns = array_merge($patterns, explode(',', $options['i']));
 }
@@ -69,18 +81,19 @@ if (isset($options['i'])) {
 if (isset($options['e'])) {
     $patterns = array_diff($patterns, explode(',', $options['e']));
 }
+
 /**
  * Recursively traverses the directory tree
  *
- * @param  string $dir
+ * @param  string $dirname
  * @return array
  */
-function expandTree($dir)
+function expandTree($dirname)
 {
     $directories = [];
-    $files = array_diff(scandir($dir), ['.', '..']);
+    $files = array_diff(scandir($dirname), ['.', '..']);
     foreach($files as $file) {
-        $directory = $dir . '/' . $file;
+        $directory = $dirname . '/' . $file;
         if(is_dir($directory)) {
             $directories[] = $directory;
             $directories = array_merge($directories, expandTree($directory));
@@ -93,17 +106,17 @@ function expandTree($dir)
 /**
  * Recursively deletes the directory
  *
- * @param  string $dir
+ * @param  string $dirname
  * @return bool
  */
-function delTree($dir)
+function delTree($dirname)
 {
-    $files = array_diff(scandir($dir), ['.', '..']);
+    $files = array_diff(scandir($dirname), ['.', '..']);
     foreach ($files as $file) {
-        (is_dir($dir . '/' . $file)) ? delTree($dir . '/' . $file) : unlink($dir . '/' . $file);
+        is_dir($dirname . '/' . $file) ? delTree($dirname . '/' . $file) : unlink($dirname . '/' . $file);
     }
 
-    return rmdir($dir);
+    return rmdir($dirname);
 }
 
 /**
@@ -117,7 +130,8 @@ function prepareWord($matches)
     return '[' . strtolower($matches[1]) . strtoupper($matches[1]) . ']';
 }
 
-$directories = expandTree(dirname(__DIR__, 2));
+$objects     = 0;
+$directories = expandTree($dirname);
 
 foreach ($directories as $directory) {
     foreach ($patterns as $pattern) {
@@ -126,15 +140,33 @@ foreach ($directories as $directory) {
 
         foreach (glob($directory . '/' . $casePattern, GLOB_BRACE) as $file) {
 
-            echo 'delete: ' . $file . PHP_EOL;
-
-            if (is_dir($file)) {
-                delTree($file);
+            if (isset($options['v']) || isset($options['d'])) {
+                echo $file . PHP_EOL;
             } else {
-                unlink($file);
+                echo '.';
             }
+
+            if (! isset($options['d'])) {
+                if (is_dir($file)) {
+                    delTree($file);
+                } else {
+                    unlink($file);
+                }
+            }
+
+            usleep(3000);
+            $objects++;
         }
     }
 }
 
-echo 'success' . PHP_EOL;
+if ($objects) {
+    if (isset($options['d'])) {
+        echo PHP_EOL . $objects . ' object(s) will be deleted!' . PHP_EOL;
+    } else {
+        echo PHP_EOL . $objects . ' object(s) successfully deleted!' . PHP_EOL;
+    }
+} else {
+    echo 'No objects found for deletion!' . PHP_EOL;
+}
+
