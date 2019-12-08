@@ -54,11 +54,13 @@ $patterns = [
     '*.xml',
     '*.txt',
     '*.dist',
+    '*.neon',
     '.php_cs*',
     '.scrutinizer',
     '.gitignore',
     '.gitattributes',
     '.editorconfig',
+    '.phpstorm.meta.php',
     'dockerfile',
     'composer.lock',
 ];
