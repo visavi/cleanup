@@ -28,18 +28,19 @@ It cleans up any tests, descriptions, documentation, examples, etc.
 * history*
 * upgrading*
 * upgrade*
-* package*
 * readme*
 * {,.}*.yml
 * *.md
 * *.xml
 * *.txt
 * *.dist
+* *.neon
 * .php_cs*
 * .scrutinizer
 * .gitignore
 * .gitattributes
 * .editorconfig
+* .phpstorm.meta.php
 * dockerfile
 * composer.lock
 

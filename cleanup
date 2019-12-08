@@ -47,7 +47,6 @@ $patterns = [
     'history*',
     'upgrading*',
     'upgrade*',
-    'package*',
     'readme*',
     '{,.}*.yml',
     '*.md',
