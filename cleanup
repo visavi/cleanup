@@ -1,11 +1,14 @@
 #!/usr/bin/env php
 <?php
 
-$version = '1.5.0';
+declare(strict_types=1);
+
+$version = '2.0.0';
 $options = getopt('i:e:p:dvh', ['include:', 'exclude:', 'path:', 'dry', 'verbose', 'help']);
 
 foreach ($options as $key => $value) {
-    $options[$key[0]] = $value;
+    // Repeated options come as array, take the last one
+    $options[$key[0]] = is_array($value) ? end($value) : $value;
 }
 
 echo 'Cleanup v' . $version . PHP_EOL . PHP_EOL;
@@ -31,15 +34,22 @@ if (isset($options['h'])) {
 $patterns = [
     '.git',
     '.github',
+    '.circleci',
+    '.idea',
+    '.vscode',
+    '.psalm',
+    '.temp',
     'test',
     'tests',
-    'travis',
     'demo',
     'example',
     'examples',
     'doc',
     'docs',
+    'benchmark',
+    'benchmarks',
     'license',
+    'authors*',
     'changelog*',
     'changes*',
     'faq*',
@@ -48,30 +58,48 @@ $patterns = [
     'upgrading*',
     'upgrade*',
     'readme*',
-    '{,.}*.yml',
+    'makefile',
+    '*.yml',
+    '.*.yml',
+    '*.yaml',
+    '.*.yaml',
     '*.md',
-    '*.xml',
+    '*.rst',
     '*.txt',
     '*.dist',
     '*.neon',
+    '*.cache',
+    'phpunit.xml',
+    'phpcs.xml',
+    'psalm.xml',
     '.php_cs*',
-    '.scrutinizer',
+    '.php-cs-fixer*',
     '.gitignore',
     '.gitattributes',
+    '.gitmodules',
     '.editorconfig',
+    '.dockerignore',
+    '.mailmap',
+    '.ds_store',
     '.phpstorm.meta.php',
-    'dockerfile',
+    'dockerfile*',
+    'docker-compose*',
     'composer.lock',
 ];
 
 $dirname = dirname(__DIR__, 2);
+
+if (! is_file($dirname . '/autoload.php')) {
+    echo 'Vendor directory not found! The script must be installed in vendor via composer' . PHP_EOL;
+    exit(1);
+}
 
 if (isset($options['p'])) {
     $dirname .= '/' . $options['p'];
 
     if (! file_exists($dirname)) {
         echo 'Directory not found!' . PHP_EOL;
-        return;
+        exit(1);
     }
 }
 
@@ -85,17 +113,14 @@ if (isset($options['e'])) {
 
 /**
  * Recursively traverses the directory tree
- *
- * @param  string $dirname
- * @return array
  */
-function expandTree($dirname)
+function expandTree(string $dirname): array
 {
     $directories = [];
     $files = array_diff(scandir($dirname), ['.', '..']);
     foreach($files as $file) {
         $directory = $dirname . '/' . $file;
-        if(is_dir($directory)) {
+        if(is_dir($directory) && ! is_link($directory)) {
             $directories[] = $directory;
             $directories = array_merge($directories, expandTree($directory));
         }
@@ -106,29 +131,16 @@ function expandTree($dirname)
 
 /**
  * Recursively deletes the directory
- *
- * @param  string $dirname
- * @return bool
  */
-function delTree($dirname)
+function delTree(string $dirname): bool
 {
     $files = array_diff(scandir($dirname), ['.', '..']);
     foreach ($files as $file) {
-        is_dir($dirname . '/' . $file) ? delTree($dirname . '/' . $file) : unlink($dirname . '/' . $file);
+        $path = $dirname . '/' . $file;
+        is_dir($path) && ! is_link($path) ? delTree($path) : unlink($path);
     }
 
     return rmdir($dirname);
-}
-
-/**
- * Prepare word
- *
- * @param  string $matches
- * @return string
- */
-function prepareWord($matches)
-{
-    return '[' . strtolower($matches[1]) . strtoupper($matches[1]) . ']';
 }
 
 $objects     = 0;
@@ -137,9 +149,13 @@ $directories = expandTree($dirname);
 foreach ($directories as $directory) {
     foreach ($patterns as $pattern) {
 
-        $casePattern = preg_replace_callback('/([a-z])/i', 'prepareWord', $pattern);
+        $casePattern = preg_replace_callback(
+            '/([a-z])/i',
+            static fn (array $matches): string => '[' . strtolower($matches[1]) . strtoupper($matches[1]) . ']',
+            $pattern
+        );
 
-        foreach (glob($directory . '/' . $casePattern, GLOB_BRACE) as $file) {
+        foreach (glob($directory . '/' . $casePattern) ?: [] as $file) {
 
             if (isset($options['v']) || isset($options['d'])) {
                 echo $file . PHP_EOL;
@@ -148,14 +164,13 @@ foreach ($directories as $directory) {
             }
 
             if (! isset($options['d'])) {
-                if (is_dir($file)) {
+                if (is_dir($file) && ! is_link($file)) {
                     delTree($file);
                 } else {
                     unlink($file);
                 }
             }
 
-            usleep(3000);
             $objects++;
         }
     }
