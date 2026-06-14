@@ -87,13 +87,6 @@ Keep license files:
 ./vendor/bin/cleanup --exclude license
 ```
 
-Strip files from a single flat directory (e.g. drop all Carbon locale files
-your app does not use):
-
-```
-./vendor/bin/cleanup --path nesbot/carbon/src/Carbon/Lang --include '*.php'
-```
-
 Typical deploy step:
 
 ```
