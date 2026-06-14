@@ -26,7 +26,7 @@ if (isset($options['h'])) {
     echo "  \e[0;32m-d, --dry     \e[0m  Run without actual remove" . PHP_EOL . PHP_EOL;
 
     echo "\e[0;33mExample:\e[0m" . PHP_EOL;
-    echo '  ./vendor/bin/cleanup -v --path symfony --include *.zip,*.rar --exclude doc,docs,test' . PHP_EOL;
+    echo '  ./vendor/bin/cleanup -v --path symfony --include \'*.zip,*.rar\' --exclude doc,docs,test' . PHP_EOL;
     return;
 }
 
@@ -143,8 +143,11 @@ function delTree(string $dirname): bool
     return rmdir($dirname);
 }
 
-$objects     = 0;
+$objects = 0;
 $directories = expandTree($dirname);
+
+// Include the root path so patterns match in a flat directory without subdirs
+array_unshift($directories, $dirname);
 
 foreach ($directories as $directory) {
     foreach ($patterns as $pattern) {

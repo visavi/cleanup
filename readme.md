@@ -78,13 +78,20 @@ Preview without deleting:
 Clean only symfony packages, also delete archives, but keep docs and tests:
 
 ```
-./vendor/bin/cleanup -v --path symfony --include *.zip,*.rar --exclude doc,docs,test
+./vendor/bin/cleanup -v --path symfony --include '*.zip,*.rar' --exclude doc,docs,test
 ```
 
 Keep license files:
 
 ```
 ./vendor/bin/cleanup --exclude license
+```
+
+Strip files from a single flat directory (e.g. drop all Carbon locale files
+your app does not use):
+
+```
+./vendor/bin/cleanup --path nesbot/carbon/src/Carbon/Lang --include '*.php'
 ```
 
 Typical deploy step:
